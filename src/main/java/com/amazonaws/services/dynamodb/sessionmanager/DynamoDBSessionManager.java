@@ -26,6 +26,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.util.StringUtils;
+import org.apache.catalina.Container;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.session.PersistentManagerBase;
 import org.apache.juli.logging.Log;
@@ -233,8 +234,18 @@ public class DynamoDBSessionManager extends PersistentManagerBase {
     }
 
     private SessionConverter getSessionConverter() {
-        ClassLoader classLoader = getContext().getLoader().getClassLoader();
+        ClassLoader classLoader = getAssociatedContext().getLoader().getClassLoader();
         return SessionConverter.createDefaultSessionConverter(this, classLoader);
+    }
+
+    private Container getAssociatedContext() {
+        try {
+            return getContainer();
+        } catch (ClassCastException e) {
+            logger.fatal("Unable to cast " + getClass().getName() + " to a Context."
+                    + " DynamoDB SessionManager can only be used with a Context");
+            throw new IllegalStateException(e);
+        }
     }
 
 }
