@@ -51,6 +51,7 @@ public class DynamoUtils {
      */
     public static DynamoDBMapper createDynamoMapper(AmazonDynamoDB dynamoDbClient, String tableName) {
         return new DynamoDBMapper(dynamoDbClient, DynamoDBMapperConfig.builder()
+                .withConsistentReads(DynamoDBMapperConfig.ConsistentReads.CONSISTENT)
                 .withTableNameOverride(new TableNameOverride(tableName))
                 .build());
     }
